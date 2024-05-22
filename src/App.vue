@@ -1,10 +1,8 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   components: {
-    HelloWorld,
     RouterLink,
     RouterView
   }
