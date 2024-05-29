@@ -4,7 +4,10 @@ import { sleep } from '@/services/utils'
 export default {
   props: {
     die: Object,
-    stepDuration: Number
+    stepDuration: {
+      type: Number,
+      default: 100
+    }
   },
   data() {
     return {
@@ -72,7 +75,7 @@ export default {
   aspect-ratio: 1 /1;
   width: 100%;
   padding: 10%;
-  border: solid 1px rgb(214, 217, 224);
+  border: solid 0.25em rgb(214, 217, 224);
   border-radius: 2em;
   outline: solid 0 red;
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));

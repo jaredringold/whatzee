@@ -1,55 +1,55 @@
 <script>
+import { defineComponent } from 'vue'
 import DieSlot from '@/components/DieSlot.vue'
+import ScoreCard from '@/components/ScoreCard.vue'
+import useCardStore from './stores/card'
 import scores from '@/services/scores'
 import { getRandomIntegerInclusive } from '@/services/utils'
 
-export default {
+export default defineComponent({
+  setup() {
+    const cardStore = useCardStore()
+    return { cardStore }
+  },
   components: {
-    DieSlot
+    DieSlot,
+    ScoreCard
   },
   data() {
     return {
       dice: [
-        { value: 6, locked: false, rolling: false, steps: 0 },
-        { value: 6, locked: false, rolling: false, steps: 0 },
-        { value: 5, locked: false, rolling: false, steps: 0 },
-        { value: 6, locked: false, rolling: false, steps: 0 },
-        { value: 6, locked: false, rolling: false, steps: 0 }
+        { value: 0, locked: false, rolling: false, steps: 0 },
+        { value: 0, locked: false, rolling: false, steps: 0 },
+        { value: 0, locked: false, rolling: false, steps: 0 },
+        { value: 0, locked: false, rolling: false, steps: 0 },
+        { value: 0, locked: false, rolling: false, steps: 0 }
       ],
-      card: {
-        ones: 0,
-        twos: 0,
-        threes: 0,
-        fours: 0,
-        fives: 0,
-        sixes: 0,
-        threeOf: 0,
-        fourOf: 0,
-        fullHouse: 0,
-        smStraight: 0,
-        lgStraight: 0,
-        yahtzee: 0
-      },
       stepDuration: 200,
       rolls: 3,
       score: 0,
-      yCount: 1,
-      scores: {}
+      whatCount: 0,
+      scores: null,
+      whatzy: false,
+      pendingScore: null
     }
   },
   computed: {
     rolling() {
       return this.dice.filter((die) => die.rolling).length > 0
     },
+    handActive() {
+      return this.rolls < 3
+    },
     disableRoll() {
-      if (this.rolls === 0) return true
+      if (this.cardStore.cardComplete) return true
+      if (this.rolls === 0 && !this.pendingScore) return true
       if (this.rolling) return true
       const locked = this.dice.filter((die) => die.locked).length
       if (locked === this.dice.length) return true
       return false
     },
-    totalScore() {
-      return Object.values(this.card).reduce((acc, val) => acc + val, 0)
+    disableUndo() {
+      return !this.pendingScore || !this.cardStore.cardStarted
     }
   },
   watch: {
@@ -60,16 +60,31 @@ export default {
     }
   },
   methods: {
-    reset() {
+    setScore(pendingScore) {
+      this.cardStore.setScore(pendingScore)
+    },
+    resetHand() {
+      if (this.pendingScore) this.setScore(this.pendingScore)
       this.rolls = 3
-      this.scores = {}
+      this.scores = null
+      this.pendingScore = null
       this.dice.forEach((die) => {
-        die.value = null
+        die.value = 0
         die.locked = false
         die.steps = 0
       })
     },
+    resetCard() {
+      this.resetHand()
+      this.cardStore.resetCard()
+    },
+    undoScore() {
+      this.pendingScore = null
+    },
     roll() {
+      if (this.pendingScore) {
+        this.resetHand()
+      }
       this.rolls--
       const activeDice = this.dice.filter((die) => !die.locked)
       if (activeDice.length) {
@@ -110,7 +125,7 @@ export default {
       const fullHouse = scores.checkFullHouse(diceValues)
       const smStraight = scores.checkStraight(diceValues, 4, 30)
       const lgStraight = scores.checkStraight(diceValues, 5, 40)
-      const yahtzee = scores.checkYahtzee(diceValues, this.yCount ? 100 : 50)
+      const whatzee = scores.checkYahtzee(diceValues, this.whatCount ? 100 : 50)
       const chance = scores.sumValues(diceValues)
       return {
         aces,
@@ -124,17 +139,30 @@ export default {
         fullHouse,
         smStraight,
         lgStraight,
-        yahtzee,
+        whatzee,
         chance
+      }
+    },
+    setPendingScore(payload) {
+      this.pendingScore = payload
+      if (this.cardStore.slotsRemaining === 1) {
+        this.setScore(payload)
       }
     }
   }
-}
+})
 </script>
 
 <template>
   <div class="app">
-    <div class="dice">
+    <ScoreCard
+      :scores="scores"
+      :pendingScore="pendingScore"
+      :rolling="rolling"
+      :handActive="handActive"
+      @setScore="setPendingScore"
+    />
+    <div class="dice" :class="{ whatzy }">
       <DieSlot
         v-for="(die, index) of dice"
         :key="index"
@@ -144,23 +172,34 @@ export default {
       />
     </div>
     <div class="buttons">
-      <button class="button is-large roll-btn" :disabled="disableRoll" @click="roll">Roll</button>
-      <button class="button is-large reset-btn" @click="reset">Reset</button>
+      <button class="button roll-btn" :disabled="disableRoll" @click="roll">
+        Roll <span class="roll-count">{{ rolls }}</span>
+      </button>
+      <button v-if="cardStore.cardComplete" class="button reset-btn" @click="resetCard">
+        Reset
+      </button>
+      <button v-else class="button undo-btn" :disabled="disableUndo" @click="undoScore">
+        Undo
+      </button>
+      <!-- <button class="button toggle-btn" @click="whatzy = !whatzy">Toggle Whatzy</button> -->
     </div>
-    <pre>{{ scores }}</pre>
   </div>
 </template>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
+:root {
+  font-size: calc(1vw * 0.7);
+}
 * {
   box-sizing: border-box;
 }
 
 .app {
-  padding: 5%;
-  font-size: 1vw;
+  padding: 10%;
+  /* font-size: calc(1vw * 0.7); */
   font-family: 'Poetsen One', sans-serif;
   font-weight: 400;
   font-style: normal;
@@ -176,19 +215,26 @@ pre {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(1, 1fr);
-  gap: 5%;
-  margin-bottom: 5%;
+  gap: 5em;
+  margin-bottom: 5em;
+  transition: transform 200ms;
+
+  &.whatzy {
+    transform: scale(1.125);
+  }
 }
 
 .buttons {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 5%;
-  margin-bottom: 5%;
+  grid-template-rows: auto;
+  gap: 5em;
+  margin-bottom: 5em;
 
   .button {
     font-family: 'Poetsen One', sans-serif;
-    font-size: 3em;
+    font-size: 5em;
+    line-height: 1;
     padding: 0.5em;
     cursor: pointer;
     border: solid 1px rgb(214, 217, 224);
@@ -214,10 +260,27 @@ pre {
 
   .roll-btn {
     grid-column: 1 / span 3;
+
+    .roll-count {
+      display: inline-block;
+      font-size: 75%;
+      line-height: 1.5em;
+      width: 1.5em;
+      vertical-align: middle;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(to bottom, #000, #999);
+      margin: -0.25em 0 -0.125em;
+    }
   }
 
-  .reset-btn {
+  .reset-btn,
+  .undo-btn {
     grid-column: 4 / span 2;
+  }
+
+  .toggle-btn {
+    grid-column: 1 / span 5;
   }
 }
 </style>
