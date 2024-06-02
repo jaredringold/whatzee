@@ -22,7 +22,14 @@ export default defineComponent({
   },
   computed: {
     bonus() {
-      return this.cardStore.cardStarted ? this.cardStore.bonus : ' '
+      if (this.cardStore.bonusEarned) {
+        return this.cardStore.bonus
+      }
+      if (this.cardStore.gameStarted) {
+        const pending = topSlots.includes(this.pendingScore?.slot) ? this.pendingScore?.score : 0
+        return this.cardStore.bonus + pending
+      }
+      return ' '
     },
     totalUpper() {
       return this.cardStore.cardStarted ? this.cardStore.topScore : ' '

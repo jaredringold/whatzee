@@ -9,5 +9,6 @@ export default {
   resetCard() {
     Object.keys(this.slots).forEach((key) => (this.slots[key] = 0))
     Object.keys(this.slotsLocked).forEach((key) => (this.slotsLocked[key] = false))
+    this.gameStarted = false
   }
 }

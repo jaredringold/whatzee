@@ -10,6 +10,7 @@ const slotsLocked = {
 }
 
 export default {
+  gameStarted: false,
   slots,
   slotsLocked,
   bonusWhatzee: 0

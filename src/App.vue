@@ -82,9 +82,11 @@ export default defineComponent({
       this.pendingScore = null
     },
     roll() {
+      this.cardStore.gameStarted = true
       if (this.pendingScore) {
         this.resetHand()
       }
+      this.scores = null
       this.rolls--
       const activeDice = this.dice.filter((die) => !die.locked)
       if (activeDice.length) {
