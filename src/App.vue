@@ -49,7 +49,7 @@ export default defineComponent({
       return false
     },
     disableUndo() {
-      return !this.pendingScore || !this.cardStore.cardStarted
+      return !this.pendingScore || !this.cardStore.gameStarted
     }
   },
   watch: {

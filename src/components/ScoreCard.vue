@@ -25,7 +25,7 @@ export default defineComponent({
       if (this.cardStore.bonusEarned) {
         return this.cardStore.bonus
       }
-      if (this.cardStore.gameStarted) {
+      if (this.cardStore.gameStarted && this.scores) {
         const pending = topSlots.includes(this.pendingScore?.slot) ? this.pendingScore?.score : 0
         return this.cardStore.bonus + pending
       }
