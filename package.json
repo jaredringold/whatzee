@@ -1,8 +1,9 @@
 {
   "name": "whatzee",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
+  "homepage": "https://jaredringold.github.io/whatzee",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
