@@ -34,6 +34,36 @@ const scores = {
   },
   sumValues(values) {
     return values.reduce((acc, val) => acc + val, 0)
+  },
+  getScores(values, whatCount) {
+    const aces = this.checkNumber(values, 1)
+    const twos = this.checkNumber(values, 2)
+    const threes = this.checkNumber(values, 3)
+    const fours = this.checkNumber(values, 4)
+    const fives = this.checkNumber(values, 5)
+    const sixes = this.checkNumber(values, 6)
+    const threeOf = this.checkNumberCount(values, 3)
+    const fourOf = this.checkNumberCount(values, 4)
+    const fullHouse = this.checkFullHouse(values)
+    const smStraight = this.checkStraight(values, 4, 30)
+    const lgStraight = this.checkStraight(values, 5, 40)
+    const whatzee = this.checkYahtzee(values, whatCount ? 100 : 50)
+    const chance = this.sumValues(values)
+    return {
+      aces,
+      twos,
+      threes,
+      fours,
+      fives,
+      sixes,
+      threeOf,
+      fourOf,
+      fullHouse,
+      smStraight,
+      lgStraight,
+      whatzee,
+      chance
+    }
   }
 }
 

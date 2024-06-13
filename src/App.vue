@@ -116,34 +116,7 @@ export default defineComponent({
     },
     getScores() {
       const diceValues = this.dice.map((die) => die.value)
-      const aces = scores.checkNumber(diceValues, 1)
-      const twos = scores.checkNumber(diceValues, 2)
-      const threes = scores.checkNumber(diceValues, 3)
-      const fours = scores.checkNumber(diceValues, 4)
-      const fives = scores.checkNumber(diceValues, 5)
-      const sixes = scores.checkNumber(diceValues, 6)
-      const threeOf = scores.checkNumberCount(diceValues, 3)
-      const fourOf = scores.checkNumberCount(diceValues, 4)
-      const fullHouse = scores.checkFullHouse(diceValues)
-      const smStraight = scores.checkStraight(diceValues, 4, 30)
-      const lgStraight = scores.checkStraight(diceValues, 5, 40)
-      const whatzee = scores.checkYahtzee(diceValues, this.whatCount ? 100 : 50)
-      const chance = scores.sumValues(diceValues)
-      return {
-        aces,
-        twos,
-        threes,
-        fours,
-        fives,
-        sixes,
-        threeOf,
-        fourOf,
-        fullHouse,
-        smStraight,
-        lgStraight,
-        whatzee,
-        chance
-      }
+      return scores.getScores(diceValues, this.whatCount)
     },
     setPendingScore(payload) {
       this.pendingScore = payload
