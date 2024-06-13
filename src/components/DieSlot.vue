@@ -68,16 +68,36 @@ export default {
   width: 100%;
   // padding: 10%;
   // border: solid 1px rgb(214, 217, 224);
-  // border-radius: 2em;
+  border-radius: 2em;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.5));
+  box-shadow: inset 0 0 0 1em rgba(51, 51, 51, 0.25);
+}
+
+@keyframes scaleDown {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 .die {
   aspect-ratio: 1 /1;
-  width: 100%;
   padding: 10%;
   border: solid 0.25em rgb(214, 217, 224);
   border-radius: 2em;
   outline: solid 0 red;
+  background-color: #fff;
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
   box-shadow:
     0 0.25em 0.5em rgba(51, 51, 51, 0.25),
@@ -91,14 +111,9 @@ export default {
     'g h i';
   place-items: center;
   transition:
-    transform 0s,
+    transform 200s,
     outline 100ms;
   cursor: pointer;
-
-  // &.rolling {
-  // transform: rotate(720deg);
-  // transition-duration: 1s;
-  // }
 
   &.locked {
     outline: solid 1em red;

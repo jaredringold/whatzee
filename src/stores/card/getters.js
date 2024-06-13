@@ -31,8 +31,8 @@ export default {
     return sum(entries)
   },
   totalScore(state) {
-    const bonusWhatzee = state.bonusWhatzee * 100
-    return this.topScore + this.bottomScore + bonusWhatzee
+    const bonusWhatzeeScore = state.bonusWhatzee * 100
+    return this.topScore + this.bottomScore + bonusWhatzeeScore
   },
   cardStarted(state) {
     return Object.values(state.slotsLocked).some((val) => val)

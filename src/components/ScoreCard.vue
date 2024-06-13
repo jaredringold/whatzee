@@ -1,7 +1,7 @@
 <script>
 import { defineComponent } from 'vue'
 import useCardStore from '@/stores/card'
-import { topSlots, bottomSlots, slotNames } from '@/definitions'
+import { topSlots, bottomSlots, slotNames, slotKeysObj } from '@/definitions'
 
 export default defineComponent({
   props: {
@@ -22,20 +22,27 @@ export default defineComponent({
   },
   computed: {
     bonus() {
-      if (this.cardStore.bonusEarned) {
-        return this.cardStore.bonus
-      }
-      if (this.cardStore.gameStarted && this.scores) {
-        const pending = topSlots.includes(this.pendingScore?.slot) ? this.pendingScore?.score : 0
-        return this.cardStore.bonus + pending
-      }
-      return ' '
+      // if (this.cardStore.bonusEarned) {
+      //   return this.cardStore.bonus
+      // }
+      // if (this.cardStore.cardStarted) {
+      //   const pending = topSlots.includes(this.pendingScore?.slot) ? this.pendingScore?.score : 0
+      //   return this.cardStore.bonus + pending
+      // }
+      // return ''
+      return this.cardStore.cardStarted ? this.cardStore.bonus : ' '
+    },
+    bonusWhatzeeCounter() {
+      return Array(this.cardStore.bonusWhatzee).fill('✔️').join('')
     },
     totalUpper() {
       return this.cardStore.cardStarted ? this.cardStore.topScore : ' '
     },
     totalLower() {
       return this.cardStore.cardStarted ? this.cardStore.bottomScore : ' '
+    },
+    grandTotal() {
+      return this.cardStore.cardStarted ? this.cardStore.totalScore : ' '
     }
   },
   methods: {
@@ -84,14 +91,17 @@ export default defineComponent({
       >
         {{ bonus }}
       </div>
-      <div class="score-card__slot-label bottom-left">TOTAL Upper</div>
+      <div class="score-card__slot-label">TOTAL Upper</div>
       <div class="score-card__slot-score total">
         {{ totalUpper }}
       </div>
     </div>
     <div class="score-card__column score-card__column--right">
       <template v-for="(slot, index) in bottomSlots" :key="slot">
-        <div class="score-card__slot-label">{{ getSlotLabel(slot) }}</div>
+        <div class="score-card__slot-label">
+          {{ getSlotLabel(slot) }}
+          <span v-if="slot === 'whatzee'">{{ bonusWhatzeeCounter }}</span>
+        </div>
         <div
           class="score-card__slot-score"
           :class="{
@@ -104,12 +114,12 @@ export default defineComponent({
         </div>
       </template>
       <div class="score-card__slot-label">TOTAL Lower</div>
-      <div class="score-card__slot-score bottom-right total">
+      <div class="score-card__slot-score total">
         {{ totalLower }}
       </div>
-      <!-- <div class="score-card__slot-label last">TOTAL</div> -->
-      <!-- <div class="score-card__slot-score last">{{ cardStore.totalScore }}</div> -->
     </div>
+    <div class="score-card__slot-label bottom-left grand-total">GRAND TOTAL</div>
+    <div class="score-card__slot-score bottom-right total grand-total">{{ grandTotal }}</div>
   </div>
 </template>
 
@@ -118,10 +128,12 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   // outline: 0.25rem solid rgb(214, 217, 224);
+  background-color: #fff;
   border: 0.25rem solid rgb(214, 217, 224);
   border-radius: 2rem;
   margin-bottom: 8rem;
   // overflow: hidden;
+  box-shadow: 0 0.25em 0.5em rgba(51, 51, 51, 0.25);
 
   &__column {
     display: grid;
@@ -130,6 +142,8 @@ export default defineComponent({
   }
 
   &__slot-label {
+    display: flex;
+    justify-content: space-between;
     font-size: 4rem;
     line-height: 10rem;
     font-weight: 700;
@@ -143,6 +157,16 @@ export default defineComponent({
     &.bottom-left {
       border-bottom-left-radius: 1.9rem;
     }
+
+    &.grand-total {
+      font-size: 6rem;
+      line-height: 12.5rem;
+      font-weight: 500;
+    }
+
+    span {
+      font-size: 75%;
+    }
   }
 
   &__slot-score {
@@ -151,7 +175,7 @@ export default defineComponent({
     font-size: 8rem;
     line-height: 10rem;
     font-weight: 400;
-    color: rgb(214, 217, 224);
+    color: rgba(black, 0.25);
     text-align: end;
     padding: 0 2rem;
     // outline: 0.125rem solid rgb(214, 217, 224);
@@ -189,7 +213,8 @@ export default defineComponent({
     }
 
     &.locked {
-      color: #000;
+      color: red;
+      font-weight: 600;
       cursor: default;
       pointer-events: none;
     }
@@ -197,6 +222,12 @@ export default defineComponent({
     &.total {
       color: #000;
       font-weight: 600;
+    }
+
+    &.grand-total {
+      font-size: 10rem;
+      line-height: 12.5rem;
+      font-weight: 700;
     }
   }
 }

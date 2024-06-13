@@ -130,6 +130,7 @@ export default defineComponent({
 
 <template>
   <div class="app">
+    <h1 class="title">Whatzee</h1>
     <ScoreCard
       :scores="scores"
       :pendingScore="pendingScore"
@@ -161,27 +162,27 @@ export default defineComponent({
   </div>
 </template>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-
-:root {
-  font-size: calc(1vw * 0.7);
-}
-* {
-  box-sizing: border-box;
-}
-
+<style lang="scss" scoped>
 .app {
-  padding: 10%;
+  padding: 5vw;
   /* font-size: calc(1vw * 0.7); */
   font-family: 'Poetsen One', sans-serif;
   font-weight: 400;
   font-style: normal;
-}
-</style>
 
-<style lang="scss" scoped>
+  @media (min-width: 600px) {
+    padding: 5vw 15vw;
+  }
+}
+
+.title {
+  font-size: 16rem;
+  line-height: 1.5;
+  text-align: center;
+  color: white;
+  text-shadow: 0 0.25rem 0.5rem rgba(51, 51, 51, 0.75);
+}
+
 pre {
   font-size: 2em;
 }

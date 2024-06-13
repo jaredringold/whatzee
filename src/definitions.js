@@ -9,7 +9,7 @@ export const bottomSlots = [
   'chance'
 ]
 
-const slotKeysObj = {
+export const slotKeysObj = {
   aces: 'aces',
   twos: 'twos',
   threes: 'threes',

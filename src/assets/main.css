@@ -1,0 +1,16 @@
+@import 'reset-css';
+
+@import url('https://fonts.googleapis.com/css2?family=Poetsen+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+:root {
+  font-size: calc(1vw * 0.9);
+  @media (min-width: 600px) {
+    font-size: calc(1vw * 0.7);
+  }
+}
+
+body {
+  background-image: linear-gradient(to bottom, #666, #111);
+  min-height: 100vh;
+}
