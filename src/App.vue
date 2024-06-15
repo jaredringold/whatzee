@@ -28,8 +28,8 @@ export default defineComponent({
       ],
       stepDuration: 200,
       rolls: 3,
+      totalRolls: 3,
       score: 0,
-      whatCount: 0,
       scores: null,
       whatzy: false,
       pendingScore: null
@@ -40,7 +40,7 @@ export default defineComponent({
       return this.dice.filter((die) => die.rolling).length > 0
     },
     handActive() {
-      return this.rolls < 3
+      return this.rolls < this.totalRolls
     },
     disableRoll() {
       if (this.cardStore.cardComplete) return true
@@ -57,7 +57,8 @@ export default defineComponent({
   watch: {
     rolling(isRolling, wasRolling) {
       if (!isRolling && wasRolling) {
-        this.scores = this.getScores()
+        this.rolls--
+        this.getScores()
       }
     }
   },
@@ -66,8 +67,8 @@ export default defineComponent({
       this.cardStore.setScore(this.pendingScore)
     },
     resetHand() {
-      this.rolls = 3
       if (this.pendingScore) this.setScore()
+      this.rolls = this.totalRolls
       this.scores = null
       this.pendingScore = null
       this.dice.forEach((die) => {
@@ -89,7 +90,6 @@ export default defineComponent({
         this.resetHand()
       }
       this.scores = null
-      this.rolls--
       const activeDice = this.dice.filter((die) => !die.locked)
       if (activeDice.length) {
         for (const die of activeDice) {
@@ -167,7 +167,9 @@ export default defineComponent({
         <button class="button grid__2-5" @click="setScore">Set Score</button>
       </template>
       <button class="button roll-btn" :disabled="disableRoll" @click="roll">
-        Roll <span class="roll-count">{{ rolls }}</span>
+        <!-- Roll <span class="roll-count">{{ rolls }}</span> -->
+        Roll
+        <span v-for="n of totalRolls" :key="n" class="roll-count" :class="{ active: n <= rolls }" />
       </button>
       <button v-if="cardStore.cardComplete" class="button reset-btn" @click="resetCard">
         Reset
@@ -186,6 +188,7 @@ export default defineComponent({
   font-family: 'Poetsen One', sans-serif;
   font-weight: 400;
   font-style: normal;
+  overflow-x: hidden;
 
   @media (min-width: 600px) {
     padding: 5vw 15vw;
@@ -194,10 +197,11 @@ export default defineComponent({
 
 .title {
   font-size: 16rem;
-  line-height: 1.5;
+  line-height: 1;
   text-align: center;
   color: white;
   text-shadow: 0 0.25rem 0.5rem rgba(51, 51, 51, 0.75);
+  margin-bottom: 5rem;
 }
 
 pre {
@@ -270,14 +274,41 @@ pre {
 
     .roll-count {
       display: inline-block;
-      font-size: 75%;
-      line-height: 1.5em;
-      width: 1.5em;
+      // font-size: 75%;
+      line-height: 1em;
+      width: 1em;
       vertical-align: middle;
       border-radius: 50%;
-      color: #fff;
+      // color: #fff;
       background: linear-gradient(to bottom, #000, #999);
-      margin: -0.25em 0 -0.125em;
+
+      margin: -0.25em 0 -0.125em 0.125em;
+
+      &::before {
+        content: '🎲';
+        display: block;
+        // background-image: linear-gradient(
+        //   to bottom,
+        //   rgba(255, 255, 255, 1),
+        //   rgba(255, 255, 255, 0.75)
+        // );
+        // aspect-ratio: 1 / 1;
+        // width: 0.5em;
+        // border-radius: 50%;
+        // margin: 0.25em;
+        font-size: 50%;
+        opacity: 0;
+      }
+
+      &.active {
+        &::before {
+          opacity: 1;
+        }
+      }
+    }
+
+    &:disabled .roll-count {
+      opacity: 0.5;
     }
   }
 

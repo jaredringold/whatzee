@@ -25,6 +25,7 @@ export default {
         return {
           transform: `rotate(${360 * this.die.steps}deg)`,
           transitionDuration: `${this.die.steps * this.stepDuration}ms`
+          // transformOrigin: `${50 + getRandomIntegerInclusive(-5, 5)}% ${50 + getRandomIntegerInclusive(-5, 5)}%`
         }
       }
       return false
@@ -35,12 +36,14 @@ export default {
       if (isRolling && !wasRolling) {
         this.rollStart = true
         await sleep(10)
+        // await this.$nextTick()
         this.rollStart = false
         this.isRolling = true
       }
       if (!isRolling && wasRolling) {
         this.rollEnd = true
         await sleep(10)
+        // await this.$nextTick()
         this.rollEnd = false
         this.isRolling = false
       }
@@ -55,9 +58,14 @@ export default {
 </script>
 
 <template>
-  <div class="die-slot">
-    <div class="die" :class="classes" :style="styles" :data-value="die.value" @click="toggleLocked">
-      <span v-for="n in die.value" class="dot" :class="`dot-${n}`" :key="n"></span>
+  <div class="die-slot" :class="{ locked: this.die.locked }">
+    <div class="die" :class="classes" :style="styles" :data-value="die.value" @click="click">
+      <template v-if="die.value">
+        <span v-for="n in die.value" class="dot" :class="`dot-${n}`" :key="n"></span>
+      </template>
+      <template v-else>
+        <span class="default">W</span>
+      </template>
     </div>
   </div>
 </template>
@@ -69,26 +77,15 @@ export default {
   // padding: 10%;
   // border: solid 1px rgb(214, 217, 224);
   border-radius: 2em;
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.5));
-  box-shadow: inset 0 0 0 1em rgba(51, 51, 51, 0.25);
-}
+  // background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.5));
+  // box-shadow: inset 0 0 0 1em rgba(51, 51, 51, 0.25);
+  outline: solid 0 red;
+  transition: transform 200ms;
 
-@keyframes scaleDown {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(0.9);
-  }
-}
-
-@keyframes scaleUp {
-  from {
-    transform: scale(0.9);
-  }
-  to {
-    transform: scale(1);
-  }
+  // &.locked {
+  //   // outline: solid 1em red;
+  //   transform: scale(0.95);
+  // }
 }
 
 .die {
@@ -113,11 +110,11 @@ export default {
   transition:
     transform 200s,
     outline 100ms;
+  transform-origin: center;
   cursor: pointer;
 
   &.locked {
     outline: solid 1em red;
-    // transition: outline 200ms;
   }
 
   // &:nth-of-type(1) {
@@ -138,6 +135,12 @@ export default {
   //     background: linear-gradient(to bottom, #000, #999);
   //   }
   // }
+
+  .default {
+    grid-area: span 3 / span 3;
+    font-size: 6rem;
+    opacity: 0.125;
+  }
 
   .dot {
     aspect-ratio: 1/1;
