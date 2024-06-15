@@ -1,7 +1,7 @@
 <script>
 import { defineComponent } from 'vue'
 import useCardStore from '@/stores/card'
-import { topSlots, bottomSlots, slotNames, slotKeysObj } from '@/definitions'
+import { topSlots, bottomSlots, slotNames } from '@/definitions'
 
 export default defineComponent({
   props: {
@@ -33,7 +33,7 @@ export default defineComponent({
       return this.cardStore.cardStarted ? this.cardStore.bonus : ' '
     },
     bonusWhatzeeCounter() {
-      return Array(this.cardStore.bonusWhatzee).fill('✔️').join('')
+      return Array(this.cardStore.bonusWhatzee).fill('✔').join('')
     },
     totalUpper() {
       return this.cardStore.cardStarted ? this.cardStore.topScore : ' '
@@ -51,7 +51,7 @@ export default defineComponent({
     },
     getSlotValue(slot) {
       if (this.cardStore.slotsLocked[slot]) {
-        return this.cardStore.slots[slot]
+        return this.cardStore.slots[slot] || '✘'
       }
       return this.scores?.[slot] !== undefined ? this.scores[slot] : ' '
     },
@@ -131,7 +131,7 @@ export default defineComponent({
   background-color: #fff;
   border: 0.25rem solid rgb(214, 217, 224);
   border-radius: 2rem;
-  margin-bottom: 8rem;
+  margin-bottom: 5rem;
   // overflow: hidden;
   box-shadow: 0 0.25em 0.5em rgba(51, 51, 51, 0.25);
 
@@ -180,6 +180,7 @@ export default defineComponent({
     padding: 0 2rem;
     // outline: 0.125rem solid rgb(214, 217, 224);
     box-shadow: 0 0 0 0.125rem rgb(214, 217, 224);
+    pointer-events: none;
 
     &.top-right {
       border-top-right-radius: 1.9rem;
@@ -189,6 +190,7 @@ export default defineComponent({
     }
 
     &.playable {
+      pointer-events: all;
       cursor: pointer;
 
       &::after {

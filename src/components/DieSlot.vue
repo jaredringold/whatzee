@@ -47,8 +47,8 @@ export default {
     }
   },
   methods: {
-    toggleLocked() {
-      this.$emit('toggleLocked')
+    click() {
+      this.$emit('dieClicked')
     }
   }
 }

@@ -2,14 +2,16 @@
 import { defineComponent } from 'vue'
 import DieSlot from '@/components/DieSlot.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
+import useUIStore from './stores/ui'
 import useCardStore from './stores/card'
 import scores from '@/services/scores'
 import { getRandomIntegerInclusive } from '@/services/utils'
 
 export default defineComponent({
   setup() {
+    const uiStore = useUIStore()
     const cardStore = useCardStore()
-    return { cardStore }
+    return { uiStore, cardStore }
   },
   components: {
     DieSlot,
@@ -60,12 +62,12 @@ export default defineComponent({
     }
   },
   methods: {
-    setScore(pendingScore) {
-      this.cardStore.setScore(pendingScore)
+    setScore() {
+      this.cardStore.setScore(this.pendingScore)
     },
     resetHand() {
-      if (this.pendingScore) this.setScore(this.pendingScore)
       this.rolls = 3
+      if (this.pendingScore) this.setScore()
       this.scores = null
       this.pendingScore = null
       this.dice.forEach((die) => {
@@ -107,7 +109,11 @@ export default defineComponent({
       die.rolling = true
       setTimeout(() => this.rollDie(die, --steps), this.stepDuration)
     },
-    toggleLocked(index) {
+    dieClicked(index) {
+      if (this.uiStore.debug) {
+        this.setDieValue(index)
+        return
+      }
       const die = this.dice[index]
       if (!die.value || die.rolling) {
         return
@@ -116,13 +122,20 @@ export default defineComponent({
     },
     getScores() {
       const diceValues = this.dice.map((die) => die.value)
-      return scores.getScores(diceValues, this.whatCount)
+      this.scores = scores.getScores(diceValues, this.cardStore.whatzy > 0)
     },
     setPendingScore(payload) {
       this.pendingScore = payload
       if (this.cardStore.slotsRemaining === 1) {
-        this.setScore(payload)
+        this.setScore()
       }
+    },
+    setDieValue(index) {
+      const die = this.dice[index]
+      die.value = die.value === 6 ? 1 : die.value + 1
+    },
+    setWhatCount() {
+      this.whatCount = this.whatCount === 3 ? 0 : this.whatCount + 1
     }
   }
 })
@@ -144,10 +157,15 @@ export default defineComponent({
         :key="index"
         :die="die"
         :stepDuration="stepDuration"
-        @toggleLocked="toggleLocked(index)"
+        @dieClicked="dieClicked(index)"
       />
     </div>
     <div class="buttons">
+      <template v-if="uiStore.debug">
+        <button class="button grid__2-5" @click="getScores">Get Scores</button>
+        <div class="grid__1-5"></div>
+        <button class="button grid__2-5" @click="setScore">Set Score</button>
+      </template>
       <button class="button roll-btn" :disabled="disableRoll" @click="roll">
         Roll <span class="roll-count">{{ rolls }}</span>
       </button>
@@ -157,7 +175,6 @@ export default defineComponent({
       <button v-else class="button undo-btn" :disabled="disableUndo" @click="undoScore">
         Undo
       </button>
-      <!-- <button class="button toggle-btn" @click="whatzy = !whatzy">Toggle Whatzy</button> -->
     </div>
   </div>
 </template>
@@ -206,6 +223,20 @@ pre {
   grid-template-rows: auto;
   gap: 5em;
   margin-bottom: 5em;
+
+  .grid {
+    &__1-5 {
+      grid-column: span 1;
+    }
+
+    &__2-5 {
+      grid-column: span 2;
+    }
+
+    &__3-5 {
+      grid-column: span 3;
+    }
+  }
 
   .button {
     font-family: 'Poetsen One', sans-serif;
