@@ -36,7 +36,7 @@ export default defineComponent({
   },
   computed: {
     whatzee() {
-      return !!this.scores?.[slotKeysObj.whatzee]
+      return !!this.scores?.[slotKeysObj.whatzee] && !this.whatzeeLocked
     },
     whatzeeLocked() {
       return !!this.cardStore.slotsLocked[slotKeysObj.whatzee]
