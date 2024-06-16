@@ -1,14 +1,3 @@
-export const topSlots = ['aces', 'twos', 'threes', 'fours', 'fives', 'sixes']
-export const bottomSlots = [
-  'threeOf',
-  'fourOf',
-  'fullHouse',
-  'smStraight',
-  'lgStraight',
-  'whatzee',
-  'chance'
-]
-
 export const slotKeysObj = {
   aces: 'aces',
   twos: 'twos',
@@ -24,6 +13,24 @@ export const slotKeysObj = {
   whatzee: 'whatzee',
   chance: 'chance'
 }
+
+export const topSlots = [
+  slotKeysObj.aces,
+  slotKeysObj.twos,
+  slotKeysObj.threes,
+  slotKeysObj.fours,
+  slotKeysObj.fives,
+  slotKeysObj.sixes
+]
+export const bottomSlots = [
+  slotKeysObj.threeOf,
+  slotKeysObj.fourOf,
+  slotKeysObj.fullHouse,
+  slotKeysObj.smStraight,
+  slotKeysObj.lgStraight,
+  slotKeysObj.whatzee,
+  slotKeysObj.chance
+]
 
 export const slotNames = Object.freeze({
   [slotKeysObj.aces]: 'Aces',

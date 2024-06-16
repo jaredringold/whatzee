@@ -32,9 +32,6 @@ export default defineComponent({
       // return ''
       return this.cardStore.cardStarted ? this.cardStore.bonus : ' '
     },
-    bonusWhatzeeCounter() {
-      return Array(this.cardStore.bonusWhatzee).fill('✔').join('')
-    },
     totalUpper() {
       return this.cardStore.cardStarted ? this.cardStore.topScore : ' '
     },
@@ -74,7 +71,7 @@ export default defineComponent({
     <div class="score-card__column score-card__column--left">
       <template v-for="(slot, index) in topSlots" :key="slot">
         <div class="score-card__slot-label" :class="{ 'top-left': index === 0 }">
-          {{ getSlotLabel(slot) }}
+          <span class="label-text">{{ getSlotLabel(slot) }}</span>
         </div>
         <div
           class="score-card__slot-score"
@@ -99,8 +96,10 @@ export default defineComponent({
     <div class="score-card__column score-card__column--right">
       <template v-for="(slot, index) in bottomSlots" :key="slot">
         <div class="score-card__slot-label">
-          {{ getSlotLabel(slot) }}
-          <span v-if="slot === 'whatzee'">{{ bonusWhatzeeCounter }}</span>
+          <span class="label-text">{{ getSlotLabel(slot) }}</span>
+          <template v-if="slot === 'whatzee'">
+            <span v-for="n in cardStore.bonusWhatzee" :key="n" class="bonus-mark"></span>
+          </template>
         </div>
         <div
           class="score-card__slot-score"
@@ -143,7 +142,6 @@ export default defineComponent({
 
   &__slot-label {
     display: flex;
-    justify-content: space-between;
     font-size: 4rem;
     line-height: 10rem;
     font-weight: 700;
@@ -164,8 +162,17 @@ export default defineComponent({
       font-weight: 500;
     }
 
-    span {
-      font-size: 75%;
+    span:first-child {
+      margin-right: auto;
+    }
+
+    .bonus-mark {
+      font-size: 80%;
+      margin-left: 0.125rem;
+
+      &::before {
+        content: '✔';
+      }
     }
   }
 

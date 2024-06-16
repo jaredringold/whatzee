@@ -8,16 +8,21 @@ const scores = {
     const valid = !!counts.find((val) => val >= count)
     return valid ? this.sumValues(values) : 0
   },
-  checkFullHouse(values) {
+  checkFullHouse(values, bonus) {
+    if (bonus) return 25
     const counts = this.countValues(values)
     const result = counts.sort()
     const valid = result[0] === 2 && result[1] === 3
     return valid ? 25 : 0
   },
-  checkStraight(values, length, score) {
-    const sorted = [...new Set(values.sort())]
-    const sequence = sorted.filter((val, idx) => val === sorted[0] + idx)
-    const valid = sequence.length >= length
+  checkStraight(values, length, score, bonus) {
+    if (bonus) return score
+    const sequences = {
+      4: ['1234', '2345', '3456'],
+      5: ['12345', '23456']
+    }
+    const sorted = [...new Set(values.sort())].join('')
+    const valid = sequences[length].some((seq) => sorted.includes(seq))
     return valid ? score : 0
   },
   checkYahtzee(values, score) {
@@ -35,34 +40,22 @@ const scores = {
   sumValues(values) {
     return values.reduce((acc, val) => acc + val, 0)
   },
-  getScores(values, whatCount) {
-    const aces = this.checkNumber(values, 1)
-    const twos = this.checkNumber(values, 2)
-    const threes = this.checkNumber(values, 3)
-    const fours = this.checkNumber(values, 4)
-    const fives = this.checkNumber(values, 5)
-    const sixes = this.checkNumber(values, 6)
-    const threeOf = this.checkNumberCount(values, 3)
-    const fourOf = this.checkNumberCount(values, 4)
-    const fullHouse = this.checkFullHouse(values)
-    const smStraight = this.checkStraight(values, 4, 30)
-    const lgStraight = this.checkStraight(values, 5, 40)
-    const whatzee = this.checkYahtzee(values, whatCount ? 100 : 50)
-    const chance = this.sumValues(values)
+  getScores(values, whatzee) {
+    const bonus = whatzee ? !!this.checkYahtzee(values, 50) : false
     return {
-      aces,
-      twos,
-      threes,
-      fours,
-      fives,
-      sixes,
-      threeOf,
-      fourOf,
-      fullHouse,
-      smStraight,
-      lgStraight,
-      whatzee,
-      chance
+      aces: this.checkNumber(values, 1),
+      twos: this.checkNumber(values, 2),
+      threes: this.checkNumber(values, 3),
+      fours: this.checkNumber(values, 4),
+      fives: this.checkNumber(values, 5),
+      sixes: this.checkNumber(values, 6),
+      threeOf: this.checkNumberCount(values, 3),
+      fourOf: this.checkNumberCount(values, 4),
+      fullHouse: this.checkFullHouse(values, bonus),
+      smStraight: this.checkStraight(values, 4, 30, bonus),
+      lgStraight: this.checkStraight(values, 5, 40, bonus),
+      whatzee: this.checkYahtzee(values, 50),
+      chance: this.sumValues(values)
     }
   }
 }

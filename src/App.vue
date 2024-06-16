@@ -6,6 +6,7 @@ import useUIStore from './stores/ui'
 import useCardStore from './stores/card'
 import scores from '@/services/scores'
 import { getRandomIntegerInclusive } from '@/services/utils'
+import { slotKeysObj } from './definitions'
 
 export default defineComponent({
   setup() {
@@ -29,17 +30,25 @@ export default defineComponent({
       stepDuration: 200,
       rolls: 3,
       totalRolls: 3,
-      score: 0,
       scores: null,
-      whatzy: false,
       pendingScore: null
     }
   },
   computed: {
+    whatzee() {
+      return !!this.scores?.[slotKeysObj.whatzee]
+    },
+    whatzeeLocked() {
+      return !!this.cardStore.slotsLocked[slotKeysObj.whatzee]
+    },
+    bonusWhatzee() {
+      return this.whatzee && this.whatzeeLocked
+    },
     rolling() {
       return this.dice.filter((die) => die.rolling).length > 0
     },
     handActive() {
+      if (this.uiStore.debug) return true
       return this.rolls < this.totalRolls
     },
     disableRoll() {
@@ -51,6 +60,7 @@ export default defineComponent({
       return false
     },
     disableUndo() {
+      if (this.uiStore.debug) return false
       return !this.pendingScore || !this.cardStore.gameStarted
     }
   },
@@ -64,13 +74,14 @@ export default defineComponent({
   },
   methods: {
     setScore() {
-      this.cardStore.setScore(this.pendingScore)
+      this.cardStore.setScore(this.pendingScore, this.bonusWhatzee)
+      this.pendingScore = null
     },
     resetHand() {
       if (this.pendingScore) this.setScore()
       this.rolls = this.totalRolls
       this.scores = null
-      this.pendingScore = null
+      // this.pendingScore = null
       this.dice.forEach((die) => {
         die.value = 0
         die.locked = false
@@ -110,11 +121,11 @@ export default defineComponent({
       setTimeout(() => this.rollDie(die, --steps), this.stepDuration)
     },
     dieClicked(index) {
+      const die = this.dice[index]
       if (this.uiStore.debug) {
-        this.setDieValue(index)
+        this.setDieValue(die)
         return
       }
-      const die = this.dice[index]
       if (!die.value || die.rolling) {
         return
       }
@@ -122,7 +133,7 @@ export default defineComponent({
     },
     getScores() {
       const diceValues = this.dice.map((die) => die.value)
-      this.scores = scores.getScores(diceValues, this.cardStore.whatzy > 0)
+      this.scores = scores.getScores(diceValues, this.whatzeeLocked)
     },
     setPendingScore(payload) {
       this.pendingScore = payload
@@ -130,8 +141,7 @@ export default defineComponent({
         this.setScore()
       }
     },
-    setDieValue(index) {
-      const die = this.dice[index]
+    setDieValue(die) {
       die.value = die.value === 6 ? 1 : die.value + 1
     },
     setWhatCount() {
@@ -151,7 +161,7 @@ export default defineComponent({
       :handActive="handActive"
       @setScore="setPendingScore"
     />
-    <div class="dice" :class="{ whatzy }">
+    <div class="dice" :class="{ whatzee }">
       <DieSlot
         v-for="(die, index) of dice"
         :key="index"
@@ -216,8 +226,8 @@ pre {
   margin-bottom: 5em;
   transition: transform 200ms;
 
-  &.whatzy {
-    transform: scale(1.125);
+  &.whatzee {
+    transform: scale(1.1);
   }
 }
 
